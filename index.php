@@ -1,7 +1,5 @@
 <?php
-// ==========================================
-// 1. DATABASE CONNECTIVITY & ERROR HANDLING
-// ==========================================
+
 $host = "localhost";
 $username = "root";
 $password = "";
@@ -23,7 +21,6 @@ function sanitize_input($data) {
     return htmlspecialchars(trim($data));
 }
 
-// Variables to load data into the form for editing
 $edit_mode = false;
 $edit_id = "";
 $edit_student_name = "";
@@ -32,11 +29,7 @@ $edit_company_name = "";
 $edit_intern_role = "";
 $edit_status = "Pending";
 
-// ==========================================
-// 2. CRUD OPERATIONS (FRONTEND DRIVEN)
-// ==========================================
 
-// --- CREATE & UPDATE: Process Form Submission ---
 if (isset($_POST['save_application'])) {
     $student_name = sanitize_input($_POST['student_name']);
     $roll_number = sanitize_input($_POST['roll_number']);
@@ -50,7 +43,7 @@ if (isset($_POST['save_application'])) {
         $msg_class = "alert-danger";
     } else {
         if ($id > 0) {
-            // UPDATE Operation
+            
             $stmt = $conn->prepare("UPDATE internship_applications SET student_name=?, roll_number=?, company_name=?, intern_role=?, status=? WHERE id=?");
             $stmt->bind_param("sssssi", $student_name, $roll_number, $company_name, $intern_role, $status, $id);
             if ($stmt->execute()) {
@@ -62,7 +55,7 @@ if (isset($_POST['save_application'])) {
             }
             $stmt->close();
         } else {
-            // CREATE Operation
+          
             $stmt = $conn->prepare("INSERT INTO internship_applications (student_name, roll_number, company_name, intern_role) VALUES (?, ?, ?, ?)");
             $stmt->bind_param("ssss", $student_name, $roll_number, $company_name, $intern_role);
             if ($stmt->execute()) {
@@ -77,7 +70,7 @@ if (isset($_POST['save_application'])) {
     }
 }
 
-// --- UPDATE: Catch Clicked Row Data to Load into Form ---
+
 if (isset($_GET['edit'])) {
     $edit_mode = true;
     $edit_id = intval($_GET['edit']);
@@ -97,7 +90,7 @@ if (isset($_GET['edit'])) {
     $stmt->close();
 }
 
-// --- DELETE: Remove application from Dashboard & Database ---
+
 if (isset($_GET['delete'])) {
     $id = intval($_GET['delete']);
     $stmt = $conn->prepare("DELETE FROM internship_applications WHERE id = ?");
@@ -112,7 +105,7 @@ if (isset($_GET['delete'])) {
     $stmt->close();
 }
 
-// --- SYSTEM RESET: Empty tables for live testing evaluation demo ---
+
 if (isset($_GET['clear_all_data_records'])) {
     if ($conn->query("TRUNCATE TABLE internship_applications")) {
         $msg = "Database tables cleared cleanly for live testing verification.";
@@ -120,7 +113,7 @@ if (isset($_GET['clear_all_data_records'])) {
     }
 }
 
-// --- READ: Get items to display live in the Table with instant Search Filter support ---
+
 $search = isset($_GET['search']) ? sanitize_input($_GET['search']) : '';
 if (!empty($search)) {
     $stmt = $conn->prepare("SELECT * FROM internship_applications WHERE student_name LIKE ? OR roll_number LIKE ? OR company_name LIKE ? ORDER BY id DESC");
@@ -132,7 +125,7 @@ if (!empty($search)) {
     $result = $conn->query("SELECT * FROM internship_applications ORDER BY id DESC");
 }
 
-// Fetch dynamic real-time stats count for UI metrics view
+
 $count_total = $conn->query("SELECT COUNT(*) as total FROM internship_applications")->fetch_assoc()['total'];
 $count_approved = $conn->query("SELECT COUNT(*) as total FROM internship_applications WHERE status='Approved'")->fetch_assoc()['total'];
 $count_pending = $conn->query("SELECT COUNT(*) as total FROM internship_applications WHERE status='Pending'")->fetch_assoc()['total'];
@@ -236,7 +229,7 @@ $count_pending = $conn->query("SELECT COUNT(*) as total FROM internship_applicat
     <?php endif; ?>
 
     <div class="dashboard-grid">
-        <!-- LEFT PANEL: CREATE & UPDATE INTERACTIVE WORKSPACE FORM -->
+        
         <div class="panel">
             <h2><?php echo $edit_mode ? "⚡ Update Profile Data" : "✨ Create New Profile"; ?></h2>
             <form action="index.php" method="POST" onsubmit="return verifyFormInputs()">
@@ -279,7 +272,7 @@ $count_pending = $conn->query("SELECT COUNT(*) as total FROM internship_applicat
                 <?php endif; ?>
             </form>
         </div>
-        <!-- RIGHT PANEL: ACTIVE APPLICATIONS MATRIX WITH FILTER ENGINE -->
+     
         <div class="panel">
             <h2><span>📋 Active Applications Matrix</span></h2>
 
